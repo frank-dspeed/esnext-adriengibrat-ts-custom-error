@@ -1,0 +1,56 @@
+name: CI-release-esnext
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the main branch
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '10 */15 * * *'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Setup node 15
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Download 
+        id: src
+        env:
+          SUPER_SECRET: ${{ secrets.PAT }}
+        run: |
+          echo "export WORKING_DIR=$PWD" > .env && source .env
+          echo "export SOURCE_REPO=adriengibrat/ts-custom-error" >> .env && source .env
+         
+          echo "export MASTER_COMMIT=$(curl --silent -L https://api.github.com/repos/$SOURCE_REPO/commits/master | jq .sha | xargs)" >> .env && source .env
+          echo zxing-esnext-$(git rev-parse --short $MASTER_COMMIT) > CURRENT_VERSION
+          git add CURRENT_VERSION
+          ## This is Expected to fail if there is nothing to Commit Clever?
+          git config --global user.email "frank@dspeed.eu"
+          git config --global user.name "Frank Lemanschik"
+          git commit -m "Updated Version $MASTER_COMMIT" || exit 0
+          git clone https://github.com/$SOURCE_REPO
+          cd ts-custom-error
+          npm ci 
+          # yarn install --frozen-lockfile
+          cp ../tsconfig.lib-esnext.json .
+          
+          ./node_modules/.bin/tsc --build tsconfig.lib-esnext.json
+          cp ../package.json dist/esnext
+          mv dist/esnext ../dist
+          ls -ahl ../dist
+          exit 200
+          cd ..
+          git add dist
+          git commit -m "Updated /dist $MASTER_COMMIT" || exit 0
+          ## Lets Exit for first test
+          echo "::set-output name=releasename::Release $(cat CURRENT_VERSION)"
+          git push https://frank-dspeed:$SUPER_SECRET@github.com/frank-dspeed/zxing-esnext
