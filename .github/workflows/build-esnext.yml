@@ -53,4 +53,4 @@ jobs:
           git commit -m "Updated /dist $MASTER_COMMIT" || exit 0
         
           echo "::set-output name=releasename::Release $(cat CURRENT_VERSION)"
-          git push https://frank-dspeed:$SUPER_SECRET@github.com/frank-dspeed/zxing-esnext
+          git push https://frank-dspeed:$SUPER_SECRET@github.com/frank-dspeed/esnext-adriengibrat-ts-custom-error
