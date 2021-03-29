@@ -7,6 +7,8 @@ while it is useless and not needed it is often used so we create a useable ESNex
 
 
 ## Use
+```bash
 wget -qO- https://github.com/frank-dspeed/esnext-adriengibrat-ts-custom-error/archive/refs/heads/main.tar.gz | tar -xvz
 mv esnext-adriengibrat-ts-custom-error-main/dist ts-custom-error
 rm -rf esnext-adriengibrat-ts-custom-error-main
+```
