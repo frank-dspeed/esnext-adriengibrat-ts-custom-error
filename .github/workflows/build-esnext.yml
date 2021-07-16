@@ -45,6 +45,7 @@ jobs:
           
           ./node_modules/.bin/tsc --build tsconfig.lib-esnext.json
           cp ../package.json dist/esnext
+          rm -rf ../dist
           mv dist/esnext ../dist
           ls -ahl ../dist
           
